@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>EcoSort AR - Kartu Marker Cetak</title>
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; background:#f5f5f5; padding: 24px; }
+  h1 { text-align:center; }
+  p.sub { text-align:center; color:#555; margin-bottom: 32px; }
+  .cards { display:flex; flex-wrap:wrap; gap: 24px; justify-content:center; }
+  .card {
+    background:#fff; border-radius:12px; padding:20px; width:260px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15); text-align:center;
+  }
+  .card img { width: 180px; height: 180px; image-rendering: pixelated; border: 8px solid #000; }
+  .card h2 { margin: 12px 0 4px; font-size: 18px; }
+  .card p { font-size: 13px; color:#444; }
+  .tag { display:inline-block; padding:4px 10px; border-radius: 10px; color:#fff; font-size:12px; margin-bottom:8px; }
+  .organik { background:#2E7D32; }
+  .anorganik { background:#1565C0; }
+  .b3 { background:#C62828; }
+  @media print {
+    body { background: #fff; }
+    .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+  <h1>🌱 EcoSort AR — Kartu Marker</h1>
+  <p class="sub">Cetak halaman ini, lalu tempelkan/arahkan kamera aplikasi EcoSort AR ke salah satu marker di bawah.</p>
+  <div class="cards">
+    <div class="card">
+      <span class="tag organik">ORGANIK</span>
+      <img src="markers/0.png" alt="Marker Organik">
+      <h2>Marker Sampah Organik</h2>
+      <p>Contoh: sisa makanan, kulit buah, daun kering</p>
+    </div>
+    <div class="card">
+      <span class="tag anorganik">ANORGANIK</span>
+      <img src="markers/1.png" alt="Marker Anorganik">
+      <h2>Marker Sampah Anorganik</h2>
+      <p>Contoh: botol plastik, kaleng, kardus</p>
+    </div>
+    <div class="card">
+      <span class="tag b3">B3</span>
+      <img src="markers/2.png" alt="Marker B3">
+      <h2>Marker Sampah B3</h2>
+      <p>Contoh: baterai, obat kadaluarsa, elektronik</p>
+    </div>
+  </div>
+</body>
+</html>

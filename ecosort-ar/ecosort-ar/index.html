@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>EcoSort AR - Edukasi Pilah Sampah</title>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@3.4.5/aframe/build/aframe-ar.js"></script>
+  <style>
+    html, body { margin: 0; height: 100%; overflow: hidden; font-family: Arial, Helvetica, sans-serif; }
+
+    #ui-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 999;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 12px;
+      pointer-events: none;
+    }
+    #title-badge {
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    #help-badge {
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      padding: 8px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      max-width: 55%;
+      text-align: right;
+      line-height: 1.4;
+    }
+    #status-badge {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 999;
+      transition: background 0.3s;
+    }
+    .found { background: rgba(46, 125, 50, 0.85) !important; }
+  </style>
+</head>
+<body>
+
+  <div id="ui-overlay">
+    <div id="title-badge">🌱 EcoSort AR</div>
+    <div id="help-badge">Arahkan kamera ke marker kategori sampah di kemasan produk</div>
+  </div>
+  <div id="status-badge">🔍 Mencari marker...</div>
+
+  <a-scene
+    embedded
+    vr-mode-ui="enabled: false"
+    renderer="logarithmicDepthBuffer: true;"
+    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;">
+
+    <a-assets>
+      <a-asset-item id="waste-icon-organik" src="data:text/plain,"></a-asset-item>
+    </a-assets>
+
+    <!-- MARKER 0 = ORGANIK -->
+    <a-marker type="barcode" value="0" id="marker-organik" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+      <a-entity position="0 0 0">
+        <a-plane color="#2E7D32" opacity="0.92" height="1.1" width="1.6" position="0 0.6 0" rotation="-90 0 0"></a-plane>
+        <a-text value="SAMPAH ORGANIK" align="center" color="#FFFFFF" width="2.4" position="0 0.85 0.05" rotation="-90 0 0"></a-text>
+        <a-text value="Sisa makanan, daun, kulit buah.
+Buang ke tempat sampah HIJAU.
+Bisa jadi kompos!" align="center" color="#FFFFFF" width="1.6" position="0 0.6 0.05" rotation="-90 0 0"></a-text>
+        <a-cylinder color="#2E7D32" radius="0.18" height="0.35" position="0 0.2 0"></a-cylinder>
+      </a-entity>
+    </a-marker>
+
+    <!-- MARKER 1 = ANORGANIK -->
+    <a-marker type="barcode" value="1" id="marker-anorganik" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+      <a-entity position="0 0 0">
+        <a-plane color="#1565C0" opacity="0.92" height="1.1" width="1.6" position="0 0.6 0" rotation="-90 0 0"></a-plane>
+        <a-text value="SAMPAH ANORGANIK" align="center" color="#FFFFFF" width="2.2" position="0 0.85 0.05" rotation="-90 0 0"></a-text>
+        <a-text value="Botol plastik, kaleng, kardus.
+Buang ke tempat sampah KUNING.
+Pisahkan agar bisa didaur ulang!" align="center" color="#FFFFFF" width="1.5" position="0 0.6 0.05" rotation="-90 0 0"></a-text>
+        <a-cylinder color="#1565C0" radius="0.18" height="0.35" position="0 0.2 0"></a-cylinder>
+      </a-entity>
+    </a-marker>
+
+    <!-- MARKER 2 = B3 -->
+    <a-marker type="barcode" value="2" id="marker-b3" smooth="true" smoothCount="10" smoothTolerance="0.01" smoothThreshold="5">
+      <a-entity position="0 0 0">
+        <a-plane color="#C62828" opacity="0.92" height="1.1" width="1.6" position="0 0.6 0" rotation="-90 0 0"></a-plane>
+        <a-text value="SAMPAH B3" align="center" color="#FFFFFF" width="2.6" position="0 0.85 0.05" rotation="-90 0 0"></a-text>
+        <a-text value="Baterai, obat kadaluarsa, elektronik.
+Buang ke tempat sampah MERAH
+atau drop box khusus B3!" align="center" color="#FFFFFF" width="1.5" position="0 0.6 0.05" rotation="-90 0 0"></a-text>
+        <a-cylinder color="#C62828" radius="0.18" height="0.35" position="0 0.2 0"></a-cylinder>
+      </a-entity>
+    </a-marker>
+
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <script>
+    const statusEl = document.getElementById('status-badge');
+    const markers = ['marker-organik', 'marker-anorganik', 'marker-b3'];
+    let visibleCount = 0;
+
+    markers.forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('markerFound', () => {
+        visibleCount++;
+        statusEl.textContent = '✅ Marker terdeteksi!';
+        statusEl.classList.add('found');
+      });
+      el.addEventListener('markerLost', () => {
+        visibleCount = Math.max(0, visibleCount - 1);
+        if (visibleCount === 0) {
+          statusEl.textContent = '🔍 Mencari marker...';
+          statusEl.classList.remove('found');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
